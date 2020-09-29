@@ -1,7 +1,9 @@
 const express = require("express");
 const cors = require("cors");
-
+const moment = require("moment");
 const app = express();
+
+const shortid = require("shortid");
 
 app.use(express.json());
 app.use(cors());
@@ -14,6 +16,73 @@ app.get("/", function (request, response) {
 });
 
 // TODO add your routes and helper functions here
+
+//Returns all bookings
+app.get("/bookings", function (request, response) {
+  console.log(shortid.generate());
+  response.json(bookings);
+});
+
+//Creates a new booking
+app.post("/bookings", function (request, response) {
+  const newBooking = req.body;
+  if (newBooking) {
+    const newId = shortid.generate();
+    bookings.push(newBooking);
+    res.send("New booking created!");
+  } else {
+    res.status(400).send("The request body is invalid");
+  }
+});
+
+//Searches by time
+app.get("/bookings/search", function (request, response) {
+  let searchTime = request.query.date;
+
+  const searchedBookings = bookings.filter(
+    (booking) =>
+      moment(searchTime).isBefore(booking.checkOutDate) &&
+      moment(searchTime).isAfter(booking.checkInDate)
+  );
+
+  response.json(searchedBookings);
+});
+
+//Searches by text
+app.get("/bookings/search", function (request, response) {
+  let searchText = request.query.term;
+  console.log(searchText);
+  const matchedBookings = bookings.filter((booking) =>
+    booking.email
+      .toUpperCase()
+      .includes(
+        searchText.toUpperCase() ||
+          booking.firstName
+            .toUpperCase()
+            .includes(
+              searchText.toUpperCase() ||
+                booking.surname.toUpperCase().includes(searchText.toUpperCase())
+            )
+      )
+  );
+
+  response.json(matchedBookings);
+});
+
+//Returns a booking by ID
+app.get("/bookings/:bookingId", (request, response) => {
+  const bookingId = request.params.bookingId;
+  const bookingSearched = bookings.filter((booking) => booking.id == bookingId);
+  response.json(bookingSearched);
+});
+
+//Deletes a booking by ID
+app.delete("/bookings/:bookingId", (request, response) => {
+  const bookingId = request.params.bookingId;
+  const idToDelete = bookings.findIndex((booking) => booking.id == bookingId);
+  bookings.splice(idToDelete, 1);
+  response.send(`Booking ${bookingId} has been deleted!`);
+});
 
 const listener = app.listen(process.env.PORT, function () {
   console.log("Your app is listening on port " + listener.address().port);

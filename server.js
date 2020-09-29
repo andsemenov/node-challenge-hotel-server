@@ -35,6 +35,25 @@ app.post("/bookings", function (request, response) {
   }
 });
 
+//Returns a booking by ID
+app.get("/bookings/:bookingId", (request, response) => {
+  const bookingId = request.params.bookingId;
+  const bookingSearched = bookings.filter((booking) => booking.id == bookingId);
+
+  if (bookingSearched.length) response.json(bookingSearched);
+  else response.status(400).send("The request body is invalid");
+});
+
+//Deletes a booking by ID
+app.delete("/bookings/:bookingId", (request, response) => {
+  const bookingId = request.params.bookingId;
+  const idToDelete = bookings.findIndex((booking) => booking.id == bookingId);
+  bookings.splice(idToDelete, 1);
+  if (idToDelete.length)
+    response.send(`Booking ${bookingId} has been deleted!`);
+  else response.status(400).send("The request body is invalid");
+});
+
 //Searches by time
 app.get("/bookings/search", function (request, response) {
   let searchTime = request.query.date;
@@ -67,21 +86,6 @@ app.get("/bookings/search", function (request, response) {
   );
 
   response.json(matchedBookings);
-});
-
-//Returns a booking by ID
-app.get("/bookings/:bookingId", (request, response) => {
-  const bookingId = request.params.bookingId;
-  const bookingSearched = bookings.filter((booking) => booking.id == bookingId);
-  response.json(bookingSearched);
-});
-
-//Deletes a booking by ID
-app.delete("/bookings/:bookingId", (request, response) => {
-  const bookingId = request.params.bookingId;
-  const idToDelete = bookings.findIndex((booking) => booking.id == bookingId);
-  bookings.splice(idToDelete, 1);
-  response.send(`Booking ${bookingId} has been deleted!`);
 });
 
 const listener = app.listen(process.env.PORT, function () {

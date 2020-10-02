@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const moment = require("moment");
 const app = express();
-
+var validator = require("email-validator");
 const shortid = require("shortid");
 
 app.use(express.json());
@@ -16,20 +16,22 @@ app.get("/", function (request, response) {
 });
 
 // TODO add your routes and helper functions here
-
+console.log(validator.validate("test@email.com"));
+console.log(validator.validate("test@email"));
+console.log(validator.validate("@email.com"));
 //Returns all bookings
 app.get("/bookings", function (request, response) {
-  console.log(shortid.generate());
   response.json(bookings);
 });
 
 //Creates a new booking
 app.post("/bookings", function (request, response) {
-  const newBooking = req.body;
+  const newBooking = request.body;
   if (newBooking) {
     const newId = shortid.generate();
+    newBooking.id = newId;
     bookings.push(newBooking);
-    res.send("New booking created!");
+    response.send("New booking created!");
   } else {
     res.status(400).send("The request body is invalid");
   }

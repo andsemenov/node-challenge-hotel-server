@@ -37,6 +37,52 @@ app.post("/bookings", function (request, response) {
   }
 });
 
+//Searches by time and term
+app.get("/bookings/search", function (request, response) {
+  if (request.query.date) {
+    let searchTime = request.query.date;
+
+    const searchedBookings = bookings.filter(
+      (booking) =>
+        moment(searchTime).isBefore(booking.checkOutDate) &&
+        moment(searchTime).isAfter(booking.checkInDate)
+    );
+    if (searchedBookings.length) {
+      response.json(searchedBookings);
+    } else {
+      response.status(400).send("The request body is invalid");
+    }
+  }
+  console.log(request.query.date);
+  console.log(request.query.term);
+  if (request.query.term) {
+    let searchText = request.query.term;
+
+    const matchedBookings = bookings.filter((booking) =>
+      booking.email
+        .toUpperCase()
+        .includes(
+          searchText.toUpperCase() ||
+            booking.firstName
+              .toUpperCase()
+              .includes(
+                searchText.toUpperCase() ||
+                  booking.surname
+                    .toUpperCase()
+                    .includes(searchText.toUpperCase())
+              )
+        )
+    );
+
+    if (matchedBookings.length) {
+      response.json(matchedBookings);
+    } else {
+      response.status(400).send("The request body is invalid");
+    }
+  }
+  response.status(400).send("The request body is invalid");
+});
+
 //Returns a booking by ID
 app.get("/bookings/:bookingId", (request, response) => {
   const bookingId = request.params.bookingId;
@@ -50,46 +96,14 @@ app.get("/bookings/:bookingId", (request, response) => {
 app.delete("/bookings/:bookingId", (request, response) => {
   const bookingId = request.params.bookingId;
   const idToDelete = bookings.findIndex((booking) => booking.id == bookingId);
+  console.log(idToDelete);
   bookings.splice(idToDelete, 1);
-  if (idToDelete.length)
+  console.log(idToDelete);
+  if (idToDelete != -1) {
     response.send(`Booking ${bookingId} has been deleted!`);
-  else response.status(400).send("The request body is invalid");
+  } else response.status(400).send("The request body is invalid");
 });
 
-//Searches by time
-app.get("/bookings/search", function (request, response) {
-  let searchTime = request.query.date;
-
-  const searchedBookings = bookings.filter(
-    (booking) =>
-      moment(searchTime).isBefore(booking.checkOutDate) &&
-      moment(searchTime).isAfter(booking.checkInDate)
-  );
-
-  response.json(searchedBookings);
-});
-
-//Searches by text
-app.get("/bookings/search", function (request, response) {
-  let searchText = request.query.term;
-  console.log(searchText);
-  const matchedBookings = bookings.filter((booking) =>
-    booking.email
-      .toUpperCase()
-      .includes(
-        searchText.toUpperCase() ||
-          booking.firstName
-            .toUpperCase()
-            .includes(
-              searchText.toUpperCase() ||
-                booking.surname.toUpperCase().includes(searchText.toUpperCase())
-            )
-      )
-  );
-
-  response.json(matchedBookings);
-});
-
-const listener = app.listen(process.env.PORT, function () {
+const listener = app.listen(/* process.env.PORT */ 3000, function () {
   console.log("Your app is listening on port " + listener.address().port);
 });

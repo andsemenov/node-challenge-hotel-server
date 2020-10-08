@@ -27,13 +27,13 @@ app.get("/bookings", function (request, response) {
 //Creates a new booking
 app.post("/bookings", function (request, response) {
   const newBooking = request.body;
-  if (newBooking) {
+  if (newBooking && validator.validate(request.body.email)) {
     const newId = shortid.generate();
     newBooking.id = newId;
     bookings.push(newBooking);
     response.send("New booking created!");
   } else {
-    res.status(400).send("The request body is invalid");
+    response.status(400).send("The request body is invalid");
   }
 });
 

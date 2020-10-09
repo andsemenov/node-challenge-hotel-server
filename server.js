@@ -27,7 +27,11 @@ app.get("/bookings", function (request, response) {
 //Creates a new booking
 app.post("/bookings", function (request, response) {
   const newBooking = request.body;
-  if (newBooking && validator.validate(request.body.email)) {
+  if (
+    newBooking &&
+    validator.validate(request.body.email) &&
+    moment(newBooking.checkInDate).isBefore(newBooking.checkOutDate)
+  ) {
     const newId = shortid.generate();
     newBooking.id = newId;
     bookings.push(newBooking);

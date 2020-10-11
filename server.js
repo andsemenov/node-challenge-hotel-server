@@ -108,6 +108,6 @@ app.delete("/bookings/:bookingId", (request, response) => {
   } else response.status(400).send("The request body is invalid");
 });
 
-const listener = app.listen(/* process.env.PORT */ 3000, function () {
+const listener = app.listen(/* process.env.PORT */ 3002, function () {
   console.log("Your app is listening on port " + listener.address().port);
 });
